@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Suraksha Detective - साइबर फ्रॉड अवेयरनेस गेम</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans Devanagari', 'sans-serif'],
+                        fun: ['Fredoka', 'Noto Sans Devanagari', 'sans-serif'],
+                    },
+                    colors: {
+                        cyber: {
+                            dark: '#0f172a',
+                            navy: '#1e293b',
+                            card: '#1e293b',
+                            accent: '#38bdf8',
+                            danger: '#ef4444',
+                            success: '#22c55e',
+                            warning: '#f59e0b',
+                            light: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom animations & phone frame styling */
+        .phone-mockup {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 10px #1e293b, 0 0 0 12px #334155;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .pulse-btn {
+            animation: pulse-slow 2s infinite ease-in-out;
+        }
+        /* Custom scrollbar for simulator */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-800/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-700/60 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/20 text-white text-xl">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div>
+                    <h1 class="font-fun text-xl md:text-2xl font-bold tracking-wide text-white flex items-center gap-2">
+                        Cyber Suraksha Detective
+                        <span class="text-xs bg-amber-400 text-slate-950 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Kids & Students</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">साइबर सुरक्षा जासूस - ऑनलाइन धोखे से बचो और चैंपियन बनो!</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="flex items-center gap-4 bg-slate-900/80 px-4 py-2 rounded-2xl border border-slate-700">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-coins text-amber-400 text-lg"></i>
+                    <div>
+                        <div class="text-[10px] text-slate-400 uppercase font-semibold">Coins / Score</div>
+                        <div id="scoreDisplay" class="font-bold text-white text-base leading-none">0</div>
+                    </div>
+                </div>
+                <div class="h-6 w-px bg-slate-700"></div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-cyan-400 text-lg"></i>
+                    <div>
+                        <div class="text-[10px] text-slate-400 uppercase font-semibold">Rank / रैंक</div>
+                        <div id="badgeDisplay" class="font-bold text-cyan-300 text-xs leading-none">Cyber Rookie 🛡️</div>
+                    </div>
+                </div>
+                <div class="h-6 w-px bg-slate-700"></div>
+                <!-- Sound toggle -->
+                <button id="soundToggleBtn" onclick="toggleSound()" class="text-slate-400 hover:text-cyan-400 transition text-sm p-1" title="Toggle Sound">
+                    <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 flex flex-col gap-6">
+
+        <!-- Progress Tracker -->
+        <div class="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/60 shadow">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs md:text-sm font-semibold text-slate-300 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-cyan-400"></i>
+                    मिशन प्रगति (Case Progress): <span id="currentScenarioIndexText" class="text-white font-bold">1/5</span>
+                </span>
+                <span id="scenarioCategoryBadge" class="text-xs bg-slate-700 text-cyan-300 px-3 py-1 rounded-full font-medium">
+                    Gaming Trap 🎮
+                </span>
+            </div>
+            <!-- Progress Dots/Bar -->
+            <div class="w-full bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                <div id="progressBar" class="bg-gradient-to-r from-cyan-400 to-blue-500 h-full rounded-full transition-all duration-500" style="width: 20%;"></div>
+            </div>
+        </div>
+
+        <!-- Central Game Arena (Grid with Phone Simulator & Investigation Console) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            <!-- LEFT: Smartphone UI Simulation Screen (Col 1-6) -->
+            <div class="lg:col-span-6 flex flex-col items-center">
+                <div class="w-full max-w-[380px] bg-slate-950 rounded-[40px] phone-mockup overflow-hidden border-[6px] border-slate-800 relative flex flex-col h-[580px]">
+                    
+                    <!-- Phone Notch & Status Bar -->
+                    <div class="bg-slate-900 text-slate-300 text-xs px-6 py-2 flex justify-between items-center select-none border-b border-slate-800">
+                        <span class="font-semibold text-[11px]"><i class="fa-regular fa-clock mr-1"></i> 10:42 AM</span>
+                        <!-- Speaker notch -->
+                        <div class="w-16 h-3.5 bg-black rounded-full flex items-center justify-center">
+                            <div class="w-2.5 h-2.5 bg-slate-800 rounded-full"></div>
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[10px]">
+                            <i class="fa-solid fa-signal"></i>
+                            <i class="fa-solid fa-wifi"></i>
+                            <i class="fa-solid fa-battery-three-quarters text-emerald-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic App Header (e.g. WhatsApp / SMS / Chrome) -->
+                    <div id="phoneAppHeader" class="bg-emerald-700 text-white px-4 py-2.5 flex items-center justify-between text-sm shadow-md">
+                        <!-- Loaded Dynamically -->
+                    </div>
+
+                    <!-- Phone Screen Content Body -->
+                    <div id="phoneContentBody" class="flex-1 p-3 overflow-y-auto bg-slate-900/90 relative flex flex-col justify-between">
+                        <!-- Interactive messages/links populated via JS -->
+                    </div>
+
+                    <!-- Smartphone Home Indicator -->
+                    <div class="bg-slate-950 py-2.5 flex justify-center items-center">
+                        <div class="w-28 h-1 bg-slate-600 rounded-full"></div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-400 mt-3 text-center">
+                    <i class="fa-solid fa-hand-pointer text-cyan-400 mr-1"></i> ऊपर दी गई वर्चुअल मोबाइल स्क्रीन का मैसेज ध्यान से पढ़ें!
+                </p>
+            </div>
+
+            <!-- RIGHT: Detective Action & Decision Console (Col 7-12) -->
+            <div class="lg:col-span-6 flex flex-col gap-4">
+                
+                <!-- Mission Brief Card -->
+                <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-lg">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-9 h-9 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-magnifying-glass-arrow-right"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs uppercase font-bold text-cyan-400 tracking-wider">Mission Objective / केस विवरण</span>
+                            <h2 id="scenarioTitle" class="text-xl font-bold text-white">Free Diamonds Scam</h2>
+                        </div>
+                    </div>
+                    <p id="scenarioDescription" class="text-sm text-slate-300 leading-relaxed mt-2">
+                        आपके फोन पर एक मैसेज आया है जिसमें लोकप्रिय गेम में फ्री डायमंड्स देने का दावा किया जा रहा है।
+                    </p>
+                </div>
+
+                <!-- Action Question -->
+                <div class="bg-gradient-to-br from-slate-800 to-slate-850 p-5 rounded-2xl border border-slate-700/80 shadow-md">
+                    <h3 class="text-base font-bold text-amber-300 flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        आप क्या करेंगे? (What is your decision?)
+                    </h3>
+
+                    <!-- Decision Choice Buttons -->
+                    <div id="choicesContainer" class="flex flex-col gap-3">
+                        <!-- Choice Buttons Injected Dynamically -->
+                    </div>
+
+                    <!-- Detective Clue Hint (Bilingual) -->
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-start gap-2.5">
+                        <i class="fa-solid fa-lightbulb text-amber-400 text-sm mt-0.5"></i>
+                        <div class="text-xs text-slate-400">
+                            <span class="font-bold text-slate-200">जासूस हिंट (Clue):</span>
+                            <span id="scenarioHintText">लिंक का स्पेलिंग और भेजने वाले का नाम ध्यान से देखो!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Helpline Banner -->
+                <div class="bg-emerald-950/40 border border-emerald-500/40 rounded-2xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-phone-volume"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs text-emerald-400 font-bold uppercase tracking-wider">National Cyber Crime Helpline (भारत सरकार)</div>
+                            <div class="text-lg font-black text-white tracking-wide">Dial 1930 &bull; cybercrime.gov.in</div>
+                        </div>
+                    </div>
+                    <button onclick="showHelplineModal()" class="text-xs bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-semibold px-3 py-2 rounded-xl transition">
+                        गाइड देखें <i class="fa-solid fa-circle-info ml-1"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Feedback & Result Modal (Triggered on answer choice) -->
+    <div id="resultModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 rounded-3xl max-w-lg w-full border border-slate-700 shadow-2xl overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+            
+            <!-- Result Header Banner (Red or Green dynamically) -->
+            <div id="resultModalHeader" class="p-6 text-center text-white flex flex-col items-center justify-center bg-red-600">
+                <div id="resultModalIcon" class="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-4xl mb-3 shadow-inner">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 id="resultModalTitle" class="text-2xl font-bold font-fun">YOU GOT SCAMMED! (धोखा हो गया!)</h3>
+                <p id="resultModalSubtitle" class="text-sm font-medium mt-1 text-red-100">नकली लिंक पर क्लिक करने से भारी नुकसान हुआ।</p>
+            </div>
+
+            <!-- Result Body Breakdown -->
+            <div class="p-6 overflow-y-auto space-y-4">
+                
+                <!-- Consequence Alert Box -->
+                <div id="consequenceBox" class="bg-red-500/10 border border-red-500/30 rounded-2xl p-4">
+                    <h4 class="text-xs font-bold uppercase text-red-400 tracking-wider flex items-center gap-1.5 mb-1">
+                        <i class="fa-solid fa-bomb"></i>
+                        परिणाम / What Actually Happened:
+                    </h4>
+                    <p id="consequenceText" class="text-sm text-slate-200 font-semibold leading-relaxed">
+                        हैकर ने आपका पासवर्ड चुरा लिया और आपके गेम अकाउंट को ब्लॉक कर दिया!
+                    </p>
+                </div>
+
+                <!-- Red Flag Detective Breakdown -->
+                <div class="bg-slate-900/80 border border-slate-700 rounded-2xl p-4">
+                    <h4 class="text-xs font-bold uppercase text-cyan-400 tracking-wider flex items-center gap-1.5 mb-2">
+                        <i class="fa-solid fa-shield-virus"></i>
+                        Red Flag Detective Analysis (पहचानने के नियम):
+                    </h4>
+                    <ul id="redFlagList" class="text-xs md:text-sm text-slate-300 space-y-2 list-none">
+                        <!-- Dynamic list items -->
+                    </ul>
+                </div>
+
+                <!-- Golden Safety Rule -->
+                <div class="bg-amber-400/10 border border-amber-400/30 rounded-2xl p-3 flex items-center gap-3">
+                    <i class="fa-solid fa-key text-amber-400 text-xl flex-shrink-0"></i>
+                    <p id="goldenRuleText" class="text-xs text-amber-200 leading-snug">
+                        <strong>गोल्डन रूल:</strong> कोई भी असली कंपनी या गेम कभी फ्री डायमंड्स के लिए पासवर्ड या ओटीपी नहीं मांगती!
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Footer Action Button -->
+            <div class="p-4 bg-slate-850 border-t border-slate-700 flex justify-end gap-3">
+                <button id="nextScenarioBtn" onclick="nextScenario()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-3 px-6 rounded-2xl transition shadow-lg shadow-cyan-500/20 text-center flex items-center justify-center gap-2">
+                    <span>अगला केस सुलझाएं (Next Case)</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Certificate & Completion Modal -->
+    <div id="finalModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-850 rounded-3xl max-w-xl w-full border border-cyan-500/40 shadow-2xl p-6 md:p-8 text-center flex flex-col items-center relative overflow-hidden">
+            
+            <!-- Confetti background decoration -->
+            <div class="w-24 h-24 rounded-full bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 text-5xl mb-4">
+                <i class="fa-solid fa-award"></i>
+            </div>
+
+            <span class="text-xs font-bold uppercase tracking-widest text-cyan-400 bg-cyan-950 px-3 py-1 rounded-full mb-2">
+                Mission Completed &bull; मिशन सफल!
+            </span>
+
+            <h2 class="text-2xl md:text-3xl font-fun font-bold text-white mb-1">Cyber Suraksha Champion!</h2>
+            <p class="text-sm text-slate-300 max-w-md">बधाई हो! आपने सभी आधुनिक साइबर फ्रॉड और ऑनलाइन घोटालों की बारीकियों को सफलतापूर्वक सीख लिया है।</p>
+
+            <!-- Score Summary Cards -->
+            <div class="grid grid-cols-2 gap-3 w-full my-6 max-w-sm">
+                <div class="bg-slate-800 p-3.5 rounded-2xl border border-slate-700">
+                    <span class="text-[11px] text-slate-400 uppercase font-semibold">Total Score</span>
+                    <div id="finalScore" class="text-2xl font-black text-amber-400">100 / 100</div>
+                </div>
+                <div class="bg-slate-800 p-3.5 rounded-2xl border border-slate-700">
+                    <span class="text-[11px] text-slate-400 uppercase font-semibold">Safety Badge</span>
+                    <div id="finalBadge" class="text-sm font-bold text-cyan-300 mt-1">Cyber Master 🎖️</div>
+                </div>
+            </div>
+
+            <!-- Golden Safety Pledge -->
+            <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-700 text-left w-full text-xs text-slate-300 mb-6 space-y-1.5">
+                <div class="font-bold text-cyan-400 mb-1 flex items-center gap-1.5">
+                    <i class="fa-solid fa-handshake-angle"></i> 5 Cyber Safety Rules for Kids & Families:
+                </div>
+                <div>1. <strong>कभी OTP या पासवर्ड किसी को न दें</strong> (No one legitimate asks for OTP).</div>
+                <div>2. <strong>अंजान लिंक (.xyz, .tk, bit.ly) पर कभी क्लिक न करें।</strong></div>
+                <div>3. <strong>फ्री गिफ्ट / लॉटरी के झांसे में न आएं</strong> (There is no free money).</div>
+                <div>4. <strong>इमरजेंसी पैसे मांगने पर पहले कॉल करके वेरीफाई करें।</strong></div>
+                <div>5. <strong>फ्रॉड होने पर तुरंत 1930 डायल करें या cybercrime.gov.in पर रिपोर्ट करें।</strong></div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 w-full">
+                <button onclick="restartGame()" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> दोबारा खेलें (Play Again)
+                </button>
+                <button onclick="showHelplineModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-600 font-bold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-book-bookmark"></i> हेल्पलाइन गाइड
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cyber Helpline Info Modal -->
+    <div id="helplineModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-850 rounded-3xl max-w-lg w-full border border-slate-700 shadow-2xl p-6 text-left relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeHelplineModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-shield-cat"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Cyber Fraud Helpline & Emergency</h3>
+                    <p class="text-xs text-slate-400">भारत सरकार की आधिकारिक साइबर सहायता</p>
+                </div>
+            </div>
+
+            <div class="space-y-4 text-sm text-slate-300">
+                <div class="bg-emerald-900/30 border border-emerald-500/40 p-4 rounded-2xl">
+                    <div class="font-bold text-emerald-400 flex items-center gap-2 text-base">
+                        <i class="fa-solid fa-phone-volume"></i> National Helpline: 1930
+                    </div>
+                    <p class="text-xs text-slate-300 mt-1">
+                        यदि आपके साथ या परिवार में किसी के साथ वित्तीय धोखाधड़ी (Online Financial Fraud) होती है, तो तुरंत <strong>1930</strong> पर कॉल करें। गोल्डन आवर (शुरुआती 2-3 घंटों) में शिकायत करने पर पैसे फ्रीज करवाकर बचाए जा सकते हैं।
+                    </p>
+                </div>
+
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-cyan-400 text-sm">
+                        <i class="fa-solid fa-globe mr-1"></i> आधिकारिक पोर्टल:
+                    </div>
+                    <p class="text-xs text-slate-300">
+                        वेबसाइट: <span class="text-amber-300 font-mono font-bold">www.cybercrime.gov.in</span><br>
+                        यहाँ सोशल मीडिया हैकिंग, साइबर बुलिंग और ऑनलाइन फ्रॉड की ऑनलाइन FIR दर्ज होती है।
+                    </p>
+                </div>
+
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                    <div class="font-bold text-white text-sm mb-1">
+                        <i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> बच्चों और छात्रों के लिए 3 जरूरी टिप्स:
+                    </div>
+                    <ul class="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                        <li>गेम में किसी भी अंजान खिलाड़ी के साथ व्हाट्सएप नंबर या स्क्रीनशॉट शेयर न करें।</li>
+                        <li>माता-पिता के यूपीआई पिन (UPI PIN) या एटीएम कार्ड की फोटो कभी न लें।</li>
+                        <li>कोई भी डराने वाला या लालच भरा मैसेज आए, तो तुरंत अपने मम्मी-पापा या टीचर को बताएं।</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button onclick="closeHelplineModal()" class="mt-5 w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition text-center text-sm">
+                समझ गया (Understood)
+            </button>
+        </div>
+    </div>
+
+    <!-- Sound & Game Logic Script -->
+    <script>
+        // Web Audio Synthesizer for safe offline gaming sounds
+        const AudioFX = {
+            ctx: null,
+            enabled: true,
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            },
+            playSuccess() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.35); // C6
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            },
+            playBuzzer() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(160, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            },
+            playClick() {
+                if (!this.enabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            }
+        };
+
+        function toggleSound() {
+            AudioFX.enabled = !AudioFX.enabled;
+            const icon = document.getElementById('soundIcon');
+            if (AudioFX.enabled) {
+                icon.className = 'fa-solid fa-volume-high text-cyan-400';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+            }
+        }
+
+        // SCENARIOS DATA (5 realistic child-friendly scam traps)
+        const scenarios = [
+            {
+                id: 1,
+                category: "Gaming Trap 🎮",
+                appType: "whatsapp",
+                headerTitle: "FreeFire_GamerZ_Giveaway",
+                headerSubtitle: "online",
+                headerIcon: "fa-brands fa-whatsapp text-emerald-400 text-lg",
+                headerBg: "bg-emerald-800",
+                title: "Free Diamonds / Robux Phishing Trap",
+                description: "आपको व्हाट्सएप ग्रुप पर एक अनजान नंबर से मैसेज आया है, जिसमें दावा किया गया है कि तुरंत 50,000 फ्री डायमंड्स पाने के लिए नीचे दिए लिंक पर क्लिक करके अपना गेम लॉगिन और पासवर्ड डालें।",
+                hint: "लिंक का डोमेन ध्यान से पढ़ें - क्या यह 'freefire-gifts-claim.xyz' है या ऑफिशियल वेबसाइट?",
+                screenMockup: `
+                    <div class="flex flex-col gap-3">
+                        <div class="text-[10px] text-center text-slate-400 bg-slate-800/80 rounded-full py-1 px-3 self-center">Today</div>
+                        <div class="bg-emerald-950/70 border border-emerald-700/40 rounded-2xl p-3.5 max-w-[90%] shadow">
+                            <div class="flex items-center gap-1.5 text-xs text-amber-300 font-bold mb-1">
+                                <i class="fa-solid fa-gem text-cyan-400"></i> MEGA GIVEAWAY! 100% FREE!
+                            </div>
+                            <p class="text-xs text-slate-200 leading-relaxed">
+                                बधाई हो! आप चुने गए हैं <strong>50,000 Free Diamonds & Exclusive Elite Pass</strong> के लिए! केवल 5 मिनट बचे हैं! 🔥
+                            </p>
+                            <div class="mt-2.5 p-2 bg-slate-900 rounded-xl border border-red-500/40 text-xs">
+                                <div class="text-[10px] text-slate-400 uppercase">Click to Claim:</div>
+                                <div class="text-cyan-400 font-mono font-bold break-all underline">http://freefire-diamonds-claim.xyz/login</div>
+                            </div>
+                            <div class="text-[10px] text-slate-400 text-right mt-1.5">10:41 AM <i class="fa-solid fa-check-double text-cyan-400 ml-1"></i></div>
+                        </div>
+                    </div>
+                `,
+                choices: [
+                    {
+                        text: "लिंक पर क्लिक करें और गेम आईडी/पासवर्ड डालकर डायमंड क्लेम करें",
+                        subtext: "Click link & enter login credentials",
+                        isCorrect: false,
+                        consequence: "गेम अकाउंट हैक हो गया! हैकर ने आपका पासवर्ड और आईडी बदलकर आपका सालों पुराना अकाउंट छीन लिया!",
+                        redFlags: [
+                            "<strong>संदिग्ध URL:</strong> ऑफिशियल वेबसाइट Garena/Roblox नहीं है, बल्कि 'diamonds-claim.xyz' जैसी फर्जी साइट है।",
+                            "<strong>नकली लालच (Greed Lure):</strong> कोई भी कंपनी बिना किसी कारण के हजारों रुपये के डायमंड्स मुफ्त नहीं देती।",
+                            "<strong>पासवर्ड मांगना:</strong> कभी भी फ्री चीज़ों के लिए अपना ओरिजिनल पासवर्ड नहीं डाला जाता।"
+                        ],
+                        goldenRule: "कभी भी किसी अनजान लिंक पर गेम पासवर्ड या ईमेल क्रेडेंशियल्स न डालें।"
+                    },
+                    {
+                        text: "संदिग्ध लिंक को पहचानें, मैसेज को ब्लॉक और रिपोर्ट करें",
+                        subtext: "Identify fake link, Don't click & Block sender",
+                        isCorrect: true,
+                        consequence: "शानदार सूझबूझ! आपने अपना गेम अकाउंट और निजी डेटा सुरक्षित बचा लिया।",
+                        redFlags: [
+                            "आपने फर्जी डोमेन (.xyz) को तुरंत पहचान लिया!",
+                            "आपने '5 मिनट बचे हैं' जैसी झूठी जल्दीबाजी (Urgency Trap) को नजरअंदाज किया।",
+                            "अज्ञात नंबर को तुरंत ब्लॉक करके खुद को फिशिंग से बचाया।"
+                        ],
+                        goldenRule: "ऑफिशियल इन-गेम इवेंट्स केवल ओरिजिनल गेम ऐप के अंदर ही आते हैं, व्हाट्सएप लिंक पर नहीं!"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                category: "Bank / KYC Scam 💳",
+                appType: "sms",
+                headerTitle: "SMS: +91 98721-XXXXX",
+                headerSubtitle: "Text Message",
+                headerIcon: "fa-solid fa-comment-sms text-cyan-400 text-lg",
+                headerBg: "bg-slate-800",
+                title: "Fake Bank & Account Block Threat",
+                description: "एक एसएमएस आया है: 'प्रिय ग्राहक, आपका बैंक खाता आज रात 12 बजे ब्लॉक हो जाएगा। तुरंत पैन कार्ड और आधार लिंक करने के लिए नीचे दिए गए लिंक पर क्लिक करें।'",
+                hint: "बैंक कभी भी पर्सनल मोबाइल नंबर (10 अंकों वाले फोन नंबर) से KYC लिंक नहीं भेजते!",
+                screenMockup: `
+                    <div class="flex flex-col gap-3">
+                        <div class="text-[10px] text-center text-slate-400 bg-slate-800/80 rounded-full py-1 px-3 self-center">Sender: +91 98721 39201</div>
+                        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3.5 max-w-[95%] shadow">
+                            <div class="flex items-center gap-1.5 text-xs text-red-400 font-bold mb-1">
+                                <i class="fa-solid fa-triangle-exclamation"></i> URGENT: BANK ACCOUNT SUSPENDED
+                            </div>
+                            <p class="text-xs text-slate-200 leading-relaxed">
+                                Dear Customer, Your Bank Account will be <strong>DEACTIVATED tonight</strong> due to incomplete KYC! Update Pan Card immediately:
+                            </p>
+                            <div class="mt-2.5 p-2 bg-slate-900 rounded-xl border border-red-500/40 text-xs">
+                                <div class="text-[10px] text-slate-400 uppercase">Verification Portal:</div>
+                                <div class="text-cyan-400 font-mono font-bold break-all underline">http://sbi-kyc-update-verify.top/login</div>
+                            </div>
+                            <div class="text-[10px] text-slate-400 text-right mt-1.5">Just now</div>
+                        </div>
+                    </div>
+                `,
+                choices: [
+                    {
+                        text: "खाता बंद होने के डर से लिंक खोलकर आधार और बैंक डिटेल्स भरें",
+                        subtext: "Fear of account block: Click & submit banking info",
+                        isCorrect: false,
+                        consequence: "बैंक खाते से ₹15,000 कट गए! हैकर ने फर्जी वेबसाइट के जरिए आपके कार्ड की डिटेल और ओटीपी चुरा लिए।",
+                        redFlags: [
+                            "<strong>डराने की तकनीक (Fear & Urgency):</strong> स्कैमर आपको डराते हैं कि खाता तुरंत बंद हो जाएगा ताकि आप सोचने का समय न लें।",
+                            "<strong>फर्जी लिंक:</strong> 'sbi-kyc-update-verify.top' बैंक की असली वेबसाइट नहीं है (बैंक की साइट .bank.in या .com होती है)।",
+                            "<strong>पर्सनल नंबर से एसएमएस:</strong> असली बैंक का एसएमएस SBIIN, HDFCBK जैसे आधिकारिक नाम से आता है, 10 अंकों के नंबर से नहीं।"
+                        ],
+                        goldenRule: "बैंक कभी भी एसएमएस लिंक पर क्लिक करके पासवर्ड या पिन अपडेट करने को नहीं कहता।"
+                    },
+                    {
+                        text: "लिंक पर क्लिक न करें, बैंक के असली हेल्पलाइन या माता-पिता को बताएं",
+                        subtext: "Do NOT click, report as scam message",
+                        isCorrect: true,
+                        consequence: "बहुत बढ़िया जासूस! आपने अपने परिवार की मेहनत की कमाई को बैंक फ्रॉड से बचा लिया।",
+                        redFlags: [
+                            "आपने फर्जी एसएमएस और डराने वाली भाषा को भांप लिया।",
+                            "आपने किसी अज्ञात लिंक पर कोई निजी या बैंकिंग जानकारी नहीं डाली।",
+                            "ऑफिशियल बैंक ब्रांच जाकर या 1930 पर संदिग्ध नंबर की शिकायत की।"
+                        ],
+                        goldenRule: "केवाईसी हमेशा केवल बैंक ब्रांच जाकर या ऑफिशियल बैंक ऐप से ही की जाती है।"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                category: "Lottery & KBC Trap 🎁",
+                appType: "browser",
+                headerTitle: "Chrome: Lucky-Spinner-Win",
+                headerSubtitle: "Not Secure | http://kbc-lucky-winner...",
+                headerIcon: "fa-brands fa-chrome text-amber-400 text-lg",
+                headerBg: "bg-slate-800",
+                title: "KBC Lottery / Scratch Card Fake Prize",
+                description: "ब्राउज़र पर एक पॉपअप खुलता है: 'बधाई हो! आपने ₹25,00,000 की KBC लॉटरी जीती है! इनाम पाने के लिए ₹500 प्रोसेसिंग फीस जमा करें या फोन पर आया OTP बताएं।'",
+                hint: "जब आपने कोई लॉटरी टिकट खरीदी ही नहीं, तो आप जीत कैसे सकते हैं? और कोई असली इनाम पाने के लिए पहले पैसे क्यों मांगेगा?",
+                screenMockup: `
+                    <div class="bg-gradient-to-b from-amber-600/30 to-slate-900 border border-amber-500/40 rounded-2xl p-4 text-center">
+                        <div class="w-14 h-14 bg-amber-400 text-slate-950 rounded-full flex items-center justify-center text-2xl mx-auto shadow-lg mb-2">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-amber-300">🎉 CONGRATULATIONS WINNER!</h4>
+                        <p class="text-xs text-slate-200 mt-1">आपका मोबाइल नंबर चुना गया है <strong>₹25,00,000</strong> के स्पेशल नकद पुरस्कार के लिए!</p>
+                        <div class="my-3 p-2 bg-slate-950 rounded-xl border border-dashed border-amber-400">
+                            <div class="text-[11px] text-slate-400">Winning Token:</div>
+                            <div class="font-mono font-bold text-amber-300 text-sm">KBC-WIN-99210</div>
+                        </div>
+                        <div class="bg-red-500/20 text-red-300 text-[11px] p-2 rounded-lg border border-red-500/30">
+                            ⚠️ ट्रांसफर के लिए सरकारी टैक्स ₹499 अभी पे करें या OTP शेयर करें।
+                        </div>
+                    </div>
+                `,
+                choices: [
+                    {
+                        text: "₹25 लाख पाने के लिए ₹500 प्रोसेसिंग फीस यूपीआई से भेजें या ओटीपी बताएं",
+                        subtext: "Pay ₹500 processing fee to claim prize",
+                        isCorrect: false,
+                        consequence: "आपके ₹500 चले गए और हैकर्स ने फोन का ओटीपी लेकर खाते के बाकी पैसे भी निकाल लिए! कोई लॉटरी नहीं मिली।",
+                        redFlags: [
+                            "<strong>इनाम के बदले एडवांस पैसे:</strong> असली लॉटरी या इनाम में कभी क्लेम करने के लिए पहले 'रजिस्ट्रेशन फीस' या 'टैक्स' नहीं मांगा जाता।",
+                            "<strong>बिना भाग लिए जीत:</strong> आपने कभी कोई कॉन्टेस्ट या लॉटरी नहीं खेली, तो जीतना असंभव है।",
+                            "<strong>ओटीपी (OTP) मांगना:</strong> पैसे पाने के लिए कभी ओटीपी की जरूरत नहीं होती, ओटीपी केवल पैसे कटवाने के लिए होता है।"
+                        ],
+                        goldenRule: "पैसा प्राप्त करने (Receive) के लिए कभी भी UPI PIN या OTP डालने की ज़रूरत नहीं होती!"
+                    },
+                    {
+                        text: "पॉपअप को तुरंत बंद करें और इसे KBC लॉटरी फ्रॉड समझकर इग्नोर करें",
+                        subtext: "Close popup immediately, report fake prize",
+                        isCorrect: true,
+                        consequence: "एकदम सही फैसला! 'नो फ्री लंच' - आपने समझदारी दिखाकर ठगों के जाल को नाकाम कर दिया।",
+                        redFlags: [
+                            "आपने समझ लिया कि कोई कंपनी मुफ्त में 25 लाख रुपये नहीं बांटती।",
+                            "आपने किसी को ओटीपी या प्रोसेसिंग फीस नहीं दी।",
+                            "फर्जी वेबसाइट को बिना कोई डिटेल भरे तुरंत बंद कर दिया।"
+                        ],
+                        goldenRule: "जिस लॉटरी का टिकट नहीं खरीदा, उसे आप कभी नहीं जीत सकते!"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                category: "Impersonation / Friend Trap 👤",
+                appType: "whatsapp",
+                headerTitle: "Aman (School Friend?)",
+                headerSubtitle: "+91 91234-XXXXX (New Number)",
+                headerIcon: "fa-solid fa-user-ninja text-amber-400 text-lg",
+                headerBg: "bg-emerald-800",
+                title: "Friend Impersonation Emergency Scam",
+                description: "एक अनजान नंबर से मैसेज आया है जिसमें आपके स्कूल दोस्त 'अमन' की प्रोफाइल फोटो लगी है। वह कह रहा है: 'भाई, मेरी मम्मी अस्पताल में हैं, तुरंत इस UPI पर ₹2,000 भेज दे, कल वापस कर दूंगा!'",
+                hint: "क्या आपने सच में उसके पुराने नंबर पर कॉल करके पुष्टि की कि क्या सच में अमन ही बोल रहा है?",
+                screenMockup: `
+                    <div class="flex flex-col gap-2.5">
+                        <div class="text-[10px] text-center text-slate-400 bg-slate-800/80 rounded-full py-1 px-3 self-center">Today</div>
+                        <div class="flex items-center gap-2 bg-slate-800 p-2 rounded-xl text-xs text-slate-300">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                            <span>This sender is not in your contacts.</span>
+                        </div>
+                        <div class="bg-emerald-950/70 border border-emerald-700/40 rounded-2xl p-3 max-w-[92%] shadow">
+                            <p class="text-xs text-slate-150 leading-relaxed">
+                                "अरे भाई! मैं अमन बोल रहा हूँ। मेरा फोन चोरी हो गया है, ये नया नंबर है। मम्मी की तबीयत बहुत खराब है, मुझे तुरंत हॉस्पिटल में दवाइयों के लिए ₹2,000 चाहिए! प्लीज तुरंत इस QR कोड पर भेज दे भाई!"
+                            </p>
+                            <div class="mt-2 p-2 bg-slate-900 rounded-lg text-center border border-slate-700">
+                                <i class="fa-solid fa-qrcode text-3xl text-cyan-400"></i>
+                                <div class="text-[10px] text-slate-400 mt-1">UPI: hospital-emergency@okaxis</div>
+                            </div>
+                            <div class="text-[10px] text-slate-400 text-right mt-1">10:44 AM</div>
+                        </div>
+                    </div>
+                `,
+                choices: [
+                    {
+                        text: "दोस्त की इमरजेंसी समझकर बिना सोचे-समझे तुरंत ₹2000 यूपीआई ट्रांसफर कर दें",
+                        subtext: "Panic & instantly send ₹2,000 without verification",
+                        isCorrect: false,
+                        consequence: "धोखा हो गया! यह अमन नहीं, बल्कि एक ठग था जिसने अमन की इंस्टाग्राम से फोटो चुराकर नकली अकाउंट बनाया था!",
+                        redFlags: [
+                            "<strong>इमोशनल ब्लैकमेल (Emotional Panic):</strong> स्कैमर बीमारी या एक्सीडेंट का बहाना बनाकर आपको सोचने का मौका नहीं देते।",
+                            "<strong>नया नंबर का बहाना:</strong> 'मेरा फोन खो गया' कहकर अनजान नंबर से पैसे मांगना आम चाल है।",
+                            "<strong>बिना वॉइस वेरिफिकेशन पैसे भेजना:</strong> आपने असली दोस्त के माता-पिता या उसके घर फोन करके चेक नहीं किया।"
+                        ],
+                        goldenRule: "इमरजेंसी में पैसे मांगने वाले किसी भी दोस्त को पैसे भेजने से पहले हमेशा डायरेक्ट कॉल करके पुष्टि करें!"
+                    },
+                    {
+                        text: "रुकें! दोस्त के पुराने असली नंबर पर या उसके परिजनों को कॉल करके पुष्टि करें",
+                        subtext: "Call friend's known number or family to verify",
+                        isCorrect: true,
+                        consequence: "वाह! असली अमन से बात करने पर पता चला कि वह बिल्कुल ठीक है और यह एक फेक स्कैमर था। आपके ₹2,000 बच गए!",
+                        redFlags: [
+                            "आपने डीपी (Profile Photo) देखकर आंख बंद करके भरोसा नहीं किया।",
+                            "आपने वॉइस कॉल के जरिए पहचान सत्यापित की।",
+                            "सोशल मीडिया से चुराई गई फोटो के जरिए होने वाले फ्रॉड को पकड़ लिया।"
+                        ],
+                        goldenRule: "किसी भी आपातकालीन वित्तीय अनुरोध को हमेशा किसी तीसरे विश्वसनीय माध्यम से सत्यापित करें।"
+                    }
+                ]
+            },
+            {
+                id: 5,
+                category: "Free Wi-Fi Trap 📶",
+                appType: "wifi",
+                headerTitle: "Wi-Fi Settings",
+                headerSubtitle: "Public Network",
+                headerIcon: "fa-solid fa-wifi text-cyan-400 text-lg",
+                headerBg: "bg-slate-800",
+                title: "Free Public Wi-Fi 'Honeypot' Trap",
+                description: "रेलवे स्टेशन पर आपको 'FREE_HIGH_SPEED_WIFI_5G' नाम का खुला वाई-फाई मिलता है। कनेक्ट करते ही एक पेज खुलता है: 'इंटरनेट चालू करने के लिए अपना गूगल अकाउंट लॉगिन करें और फोन की परमिशन दें।'",
+                hint: "सार्वजनिक वाई-फाई पर बिना पासवर्ड के कनेक्ट होना और गूगल लॉगिन मांगना हैकर्स का 'हनीपॉट' (Man-in-the-Middle) जाल हो सकता है!",
+                screenMockup: `
+                    <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
+                        <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                            <span class="text-xs text-slate-300 font-semibold flex items-center gap-1.5">
+                                <i class="fa-solid fa-wifi text-emerald-400"></i> FREE_METRO_RAILWAY_WIFI
+                            </span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded">Open (Unsecured)</span>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-amber-500/30">
+                            <div class="text-xs font-bold text-amber-300 mb-1 flex items-center gap-1">
+                                <i class="fa-solid fa-lock-open"></i> Login Required for Unlimited Internet
+                            </div>
+                            <p class="text-[11px] text-slate-300">
+                                इंटरनेट एक्टिवेट करने के लिए अपने Google ID से साइन इन करें तथा स्टोरेज व गैलरी की परमिशन Allow करें।
+                            </p>
+                            <div class="mt-2 flex gap-2">
+                                <div class="w-full bg-blue-600 text-center py-1.5 rounded-lg text-xs font-bold text-white shadow">
+                                    <i class="fa-brands fa-google mr-1"></i> Sign In with Google
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                choices: [
+                    {
+                        text: "फ्री इंटरनेट के लिए गूगल अकाउंट लॉगिन करें और सारी परमिशन Allow कर दें",
+                        subtext: "Log in with Google & grant device permissions",
+                        isCorrect: false,
+                        consequence: "फोन में मैलवेयर घुस गया! हैकर ने आपके फोन की पर्सनल तस्वीरें, ब्राउज़िंग हिस्ट्री और पासवर्ड कॉपी कर लिए!",
+                        redFlags: [
+                            "<strong>नकली वाई-फाई हॉटस्पॉट (Rogue Hotspot):</strong> हैकर्स पब्लिक जगहों पर फ्री वाईफाई बनाकर लोगों का डेटा चुराते हैं।",
+                            "<strong>गैर-जरूरी परमिशन:</strong> वाई-फाई कनेक्ट करने के लिए कभी गैलरी या स्टोरेज की परमिशन की जरूरत नहीं होती।",
+                            "<strong>अनसेफ नेटवर्क पर गूगल लॉगिन:</strong> खुले नेटवर्क पर पासवर्ड डालने से हैकर्स उसे बीच में ही पढ़ लेते हैं।"
+                        ],
+                        goldenRule: "पब्लिक वाई-फाई पर कभी भी बैंकिंग ऐप, ऑनलाइन शॉपिंग या संवेदनशील पासवर्ड लॉगिन न करें!"
+                    },
+                    {
+                        text: "असुरक्षित वाई-फाई को डिस्कनेक्ट करें और फोन का मोबाइल डेटा उपयोग करें",
+                        subtext: "Disconnect unsecured network & use mobile data",
+                        isCorrect: true,
+                        consequence: "उत्कृष्ट साइबर जासूस! आपने अपने फोन को हैकिंग और डेटा चोरी से बचा लिया।",
+                        redFlags: [
+                            "आपने बिना पासवर्ड वाले खुले नेटवर्क के खतरे को समझा।",
+                            "आपने फोन की गैलरी और गूगल क्रेडेंशियल्स की परमिशन नहीं दी।",
+                            "संवेदनशील कार्यों के लिए हमेशा अपने सुरक्षित सिम डेटा का इस्तेमाल किया।"
+                        ],
+                        goldenRule: "जरूरत पड़ने पर यदि पब्लिक वाईफाई इस्तेमाल करना ही पड़े, तो हमेशा सुरक्षित VPN का उपयोग करें।"
+                    }
+                ]
+            }
+        ];
+
+        let currentScenarioIndex = 0;
+        let score = 0;
+        let userChoicesHistory = [];
+
+        // App Initialization
+        window.onload = function() {
+            renderScenario();
+            updateScoreAndBadge();
+        };
+
+        function renderScenario() {
+            const scenario = scenarios[currentScenarioIndex];
+            
+            // Progress Bar & Category
+            document.getElementById('currentScenarioIndexText').innerText = `${currentScenarioIndex + 1}/${scenarios.length}`;
+            document.getElementById('progressBar').style.width = `${((currentScenarioIndex + 1) / scenarios.length) * 100}%`;
+            document.getElementById('scenarioCategoryBadge').innerText = scenario.category;
+            
+            // Mission Details
+            document.getElementById('scenarioTitle').innerText = scenario.title;
+            document.getElementById('scenarioDescription').innerText = scenario.description;
+            document.getElementById('scenarioHintText').innerText = scenario.hint;
+
+            // Render Phone Mockup Header
+            const headerContainer = document.getElementById('phoneAppHeader');
+            headerContainer.className = `${scenario.headerBg} text-white px-4 py-2.5 flex items-center justify-between text-sm shadow-md`;
+            headerContainer.innerHTML = `
+                <div class="flex items-center gap-2.5 truncate">
+                    <i class="${scenario.headerIcon}"></i>
+                    <div class="truncate">
+                        <div class="font-bold text-xs leading-none truncate">${scenario.headerTitle}</div>
+                        <div class="text-[10px] text-slate-300 leading-tight">${scenario.headerSubtitle}</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                    <i class="fa-solid fa-phone"></i>
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </div>
+            `;
+
+            // Render Phone Screen Body
+            const bodyContainer = document.getElementById('phoneContentBody');
+            bodyContainer.innerHTML = scenario.screenMockup;
+
+            // Render Choice Buttons
+            const choicesContainer = document.getElementById('choicesContainer');
+            choicesContainer.innerHTML = '';
+            
+            scenario.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3.5 rounded-xl border border-slate-700 bg-slate-900/90 hover:bg-slate-750 hover:border-cyan-500/50 transition-all flex items-start gap-3 group relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-cyan-400";
+                btn.onclick = () => selectChoice(index);
+                btn.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 flex items-center justify-center font-bold text-xs group-hover:bg-cyan-500 group-hover:text-slate-950 transition flex-shrink-0 mt-0.5">
+                        ${String.fromCharCode(65 + index)}
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-semibold text-slate-100 group-hover:text-cyan-300 transition">${choice.text}</div>
+                        <div class="text-xs text-slate-400 mt-0.5">${choice.subtext}</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-slate-600 group-hover:text-cyan-400 text-xs self-center transition"></i>
+                `;
+                choicesContainer.appendChild(btn);
+            });
+        }
+
+        function selectChoice(choiceIndex) {
+            AudioFX.playClick();
+            const scenario = scenarios[currentScenarioIndex];
+            const choice = scenario.choices[choiceIndex];
+
+            const modalHeader = document.getElementById('resultModalHeader');
+            const modalIcon = document.getElementById('resultModalIcon');
+            const modalTitle = document.getElementById('resultModalTitle');
+            const modalSubtitle = document.getElementById('resultModalSubtitle');
+            const consequenceBox = document.getElementById('consequenceBox');
+            const consequenceText = document.getElementById('consequenceText');
+            const redFlagList = document.getElementById('redFlagList');
+            const goldenRuleText = document.getElementById('goldenRuleText');
+            const nextBtn = document.getElementById('nextScenarioBtn');
+
+            // Populate Breakdown
+            consequenceText.innerHTML = choice.consequence;
+            goldenRuleText.innerHTML = `<strong>गोल्डन रूल:</strong> ${choice.goldenRule}`;
+
+            // Populate Red Flags list
+            redFlagList.innerHTML = '';
+            choice.redFlags.forEach(item => {
+                const li = document.createElement('li');
+                li.className = "flex items-start gap-2";
+                li.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400 text-xs mt-1 flex-shrink-0"></i> <span>${item}</span>`;
+                redFlagList.appendChild(li);
+            });
+
+            if (choice.isCorrect) {
+                // Correct - Safe action
+                score += 20;
+                AudioFX.playSuccess();
+                modalHeader.className = "p-6 text-center text-white flex flex-col items-center justify-center bg-emerald-600";
+                modalIcon.className = "w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-4xl mb-3 shadow-inner text-emerald-100";
+                modalIcon.innerHTML = `<i class="fa-solid fa-shield-check"></i>`;
+                modalTitle.innerText = "SAFE! आपने फ्रॉड पकड़ लिया! 🛡️";
+                modalSubtitle.innerText = "+20 Cyber Shield Points earned!";
+                consequenceBox.className = "bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4";
+                consequenceBox.querySelector('h4').className = "text-xs font-bold uppercase text-emerald-400 tracking-wider flex items-center gap-1.5 mb-1";
+                consequenceBox.querySelector('h4').innerHTML = `<i class="fa-solid fa-circle-check"></i> नतीजा / Safe Decision Result:`;
+            } else {
+                // Fallen for Scam
+                AudioFX.playBuzzer();
+                modalHeader.className = "p-6 text-center text-white flex flex-col items-center justify-center bg-red-600";
+                modalIcon.className = "w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-4xl mb-3 shadow-inner text-red-100";
+                modalIcon.innerHTML = `<i class="fa-solid fa-skull-crossbones"></i>`;
+                modalTitle.innerText = "HACKED! आप जाल में फंस गए! 🚨";
+                modalSubtitle.innerText = "स्कैमर ने आपको मूर्ख बना दिया! (0 Points)";
+                consequenceBox.className = "bg-red-500/10 border border-red-500/30 rounded-2xl p-4";
+                consequenceBox.querySelector('h4').className = "text-xs font-bold uppercase text-red-400 tracking-wider flex items-center gap-1.5 mb-1";
+                consequenceBox.querySelector('h4').innerHTML = `<i class="fa-solid fa-bomb"></i> परिणाम / What Hackers Stole:`;
+            }
+
+            updateScoreAndBadge();
+
+            // Set button text for last case
+            if (currentScenarioIndex === scenarios.length - 1) {
+                nextBtn.innerHTML = `<span>फाइनल स्कोर और सर्टिफिकेट देखें</span> <i class="fa-solid fa-trophy"></i>`;
+            } else {
+                nextBtn.innerHTML = `<span>अगला केस सुलझाएं (Next Case)</span> <i class="fa-solid fa-arrow-right"></i>`;
+            }
+
+            // Open Modal
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+
+        function nextScenario() {
+            AudioFX.playClick();
+            document.getElementById('resultModal').classList.add('hidden');
+
+            if (currentScenarioIndex < scenarios.length - 1) {
+                currentScenarioIndex++;
+                renderScenario();
+            } else {
+                // Game Finished
+                showFinalResults();
+            }
+        }
+
+        function updateScoreAndBadge() {
+            document.getElementById('scoreDisplay').innerText = score;
+            let badge = "Cyber Rookie 🛡️";
+            if (score >= 80) {
+                badge = "Cyber Master 🎖️";
+            } else if (score >= 40) {
+                badge = "Cyber Scout 🔍";
+            }
+            document.getElementById('badgeDisplay').innerText = badge;
+        }
+
+        function showFinalResults() {
+            AudioFX.playSuccess();
+            document.getElementById('finalScore').innerText = `${score} / 100`;
+            let finalBadgeText = "Cyber Master 🎖️";
+            if (score < 40) finalBadgeText = "Cyber Rookie (Need Practice) 🔰";
+            else if (score < 80) finalBadgeText = "Cyber Scout 🔍";
+            document.getElementById('finalBadge').innerText = finalBadgeText;
+
+            document.getElementById('finalModal').classList.remove('hidden');
+        }
+
+        function restartGame() {
+            AudioFX.playClick();
+            score = 0;
+            currentScenarioIndex = 0;
+            updateScoreAndBadge();
+            document.getElementById('finalModal').classList.add('hidden');
+            renderScenario();
+        }
+
+        function showHelplineModal() {
+            AudioFX.playClick();
+            document.getElementById('helplineModal').classList.remove('hidden');
+        }
+
+        function closeHelplineModal() {
+            AudioFX.playClick();
+            document.getElementById('helplineModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
